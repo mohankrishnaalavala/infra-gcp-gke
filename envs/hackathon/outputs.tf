@@ -59,17 +59,17 @@ output "next_steps" {
   description = "Next steps after infrastructure deployment"
   value = <<-EOT
     Infrastructure deployment complete! Next steps:
-    
+
     1. Get cluster credentials:
        gcloud container clusters get-credentials ${module.gke_cluster.cluster_name} --region ${module.gke_cluster.location} --project ${var.project_id}
-    
+
     2. Create cluster admin binding (optional):
        kubectl create clusterrolebinding bootstrap-admin --clusterrole=cluster-admin --user="$(gcloud config get-value account)"
-    
+
     3. Add secret versions:
        gcloud secrets versions add gemini-api-key --data-file=- <<< "your-gemini-api-key"
        gcloud secrets versions add fraudguard-config --data-file=config.json
-    
+
     4. Configure GitHub Actions with these values:
        - WIF_PROVIDER: ${module.github_wif.github_actions_audience}
        - WIF_SERVICE_ACCOUNT_BUILDER: ${module.github_wif.ci_builder_sa_email}
@@ -78,7 +78,7 @@ output "next_steps" {
        - GKE_CLUSTER: ${module.gke_cluster.cluster_name}
        - GKE_LOCATION: ${module.gke_cluster.location}
        - PROJECT_ID: ${var.project_id}
-    
+
     5. Deploy FraudGuard applications:
        cd ../../../fraudguard-boa
        make deploy-all NAMESPACE=fraudguard

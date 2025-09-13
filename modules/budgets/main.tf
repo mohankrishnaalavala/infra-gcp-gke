@@ -16,7 +16,7 @@ resource "google_billing_budget" "budget" {
 
   budget_filter {
     projects = ["projects/${var.project_id}"]
-    
+
     # Include specific services if provided, otherwise include all
     dynamic "services" {
       for_each = length(var.services) > 0 ? [1] : []
@@ -24,7 +24,7 @@ resource "google_billing_budget" "budget" {
         service_ids = var.services
       }
     }
-    
+
     credit_types_treatment = var.credit_types_treatment
   }
 
@@ -50,7 +50,7 @@ resource "google_billing_budget" "budget" {
     content {
       monitoring_notification_channels = []
       disable_default_iam_recipients   = false
-      
+
       # Note: Email notifications require setting up notification channels
       # This is a simplified configuration for the hackathon
     }
@@ -61,14 +61,14 @@ resource "google_billing_budget" "budget" {
 locals {
   notification_setup_instructions = length(var.notification_emails) > 0 ? <<-EOT
     To set up email notifications for budget alerts:
-    
+
     1. Create notification channels:
        gcloud alpha monitoring channels create --display-name="Budget Alerts" \
          --type=email --channel-labels=email_address=${join(",", var.notification_emails)}
-    
+
     2. Update the budget with the notification channel ID:
        # Get the channel ID from the previous command and update the budget configuration
-    
+
     3. Alternatively, set up notifications in the Google Cloud Console:
        - Go to Monitoring > Alerting > Notification Channels
        - Create email notification channels

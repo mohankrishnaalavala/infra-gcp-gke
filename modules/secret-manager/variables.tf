@@ -13,7 +13,7 @@ variable "replication_policy" {
   description = "The replication policy for secrets"
   type        = string
   default     = "automatic"
-  
+
   validation {
     condition     = contains(["automatic", "user-managed"], var.replication_policy)
     error_message = "Replication policy must be either 'automatic' or 'user-managed'."

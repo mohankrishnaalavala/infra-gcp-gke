@@ -37,12 +37,12 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
   }
 
   # Restrict access to specific repositories and branches
-  attribute_condition = join(" || ", [
-    for repo in var.repos_needing_wif : join(" || ", [
+  attribute_condition = join(" || ", flatten([
+    for repo in var.repos_needing_wif : [
       for branch in var.default_branches :
       "attribute.repository == \"${var.github_owner}/${repo}\" && attribute.ref == \"refs/heads/${branch}\""
-    ])
-  ])
+    ]
+  ]))
 }
 
 # Create Service Account for CI Builder (build and push images)
