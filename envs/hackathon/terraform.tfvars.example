@@ -1,0 +1,24 @@
+# FraudGuard Hackathon Infrastructure Configuration
+# Copy this file to terraform.tfvars and update the values
+
+# Required variables
+project_id = "fraudguard-hackathon"
+region     = "us-central1"
+
+# Cluster configuration
+cluster_name = "fraudguard-auto"
+ar_repo_id   = "fraudguard"
+
+# GitHub configuration for Workload Identity Federation
+github_owner      = "mohankrishnaalavala"
+repos_needing_wif = ["fraudguard-boa", "infra-gcp-gke"]
+default_branches  = ["main", "develop"]
+
+# Optional: Budget configuration
+# Uncomment and set your billing account ID to enable budget alerts
+# billing_account_id = "XXXXXX-XXXXXX-XXXXXX"
+# budget_amount      = 100
+# budget_notification_emails = ["your-email@example.com"]
+
+# Optional: Enable deletion protection for production
+# enable_deletion_protection = true
