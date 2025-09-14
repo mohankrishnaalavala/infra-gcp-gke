@@ -44,15 +44,16 @@ output "secret_names" {
   value       = module.secret_manager.secret_names
 }
 
-output "budget_created" {
-  description = "Whether a budget was created"
-  value       = module.budgets.budget_created
-}
+# Temporarily disabled budget outputs
+# output "budget_created" {
+#   description = "Whether a budget was created"
+#   value       = module.budgets.budget_created
+# }
 
-output "budget_amount" {
-  description = "The budget amount"
-  value       = module.budgets.budget_amount
-}
+# output "budget_amount" {
+#   description = "The budget amount"
+#   value       = module.budgets.budget_amount
+# }
 
 # Post-deployment instructions
 output "next_steps" {
@@ -85,8 +86,8 @@ output "next_steps" {
   EOT
 }
 
-# Budget setup instructions
-output "budget_instructions" {
-  description = "Budget setup instructions"
-  value       = module.budgets.billing_account_required != null ? module.budgets.billing_account_required : "Budget created successfully"
-}
+# Budget setup instructions - temporarily disabled
+# output "budget_instructions" {
+#   description = "Budget setup instructions"
+#   value       = module.budgets.billing_account_required != null ? module.budgets.billing_account_required : "Budget created successfully"
+# }

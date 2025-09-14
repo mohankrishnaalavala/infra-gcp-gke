@@ -83,14 +83,14 @@ module "secret_manager" {
   depends_on = [google_project_service.required_apis]
 }
 
-# Create budget (optional)
-module "budgets" {
-  source = "../../modules/budgets"
-
-  project_id          = var.project_id
-  billing_account_id  = var.billing_account_id
-  amount              = var.budget_amount
-  notification_emails = var.budget_notification_emails
-
-  depends_on = [google_project_service.required_apis]
-}
+# Create budget (optional) - temporarily disabled for troubleshooting
+# module "budgets" {
+#   source = "../../modules/budgets"
+#
+#   project_id          = var.project_id
+#   billing_account_id  = var.billing_account_id
+#   amount              = var.budget_amount
+#   notification_emails = var.budget_notification_emails
+#
+#   depends_on = [google_project_service.required_apis]
+# }
