@@ -18,12 +18,7 @@ resource "google_billing_budget" "budget" {
     projects = ["projects/${var.project_id}"]
 
     # Include specific services if provided, otherwise include all
-    dynamic "services" {
-      for_each = length(var.services) > 0 ? [1] : []
-      content {
-        service_ids = var.services
-      }
-    }
+    services = length(var.services) > 0 ? var.services : null
 
     credit_types_treatment = var.credit_types_treatment
   }

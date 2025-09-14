@@ -73,21 +73,6 @@ resource "google_container_cluster" "primary" {
     evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
   }
 
-  # Network policy
-  network_policy {
-    enabled = true
-  }
-
-  # Addons configuration
-  addons_config {
-    gce_persistent_disk_csi_driver_config {
-      enabled = true
-    }
-    gcp_filestore_csi_driver_config {
-      enabled = true
-    }
-    gcs_fuse_csi_driver_config {
-      enabled = true
-    }
-  }
+  # Note: Network policy and many addons are automatically managed in Autopilot mode
+  # Removed conflicting configurations that are not compatible with enable_autopilot = true
 }
