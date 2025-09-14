@@ -59,19 +59,5 @@ resource "google_billing_budget" "budget" {
 
 # Output instructions for setting up email notifications
 locals {
-  notification_setup_instructions = length(var.notification_emails) > 0 ? <<-EOT
-    To set up email notifications for budget alerts:
-
-    1. Create notification channels:
-       gcloud alpha monitoring channels create --display-name="Budget Alerts" \
-         --type=email --channel-labels=email_address=${join(",", var.notification_emails)}
-
-    2. Update the budget with the notification channel ID:
-       # Get the channel ID from the previous command and update the budget configuration
-
-    3. Alternatively, set up notifications in the Google Cloud Console:
-       - Go to Monitoring > Alerting > Notification Channels
-       - Create email notification channels
-       - Link them to the budget in Billing > Budgets & alerts
-  EOT : ""
+  notification_setup_instructions = length(var.notification_emails) > 0 ? "To set up email notifications for budget alerts:\n\n1. Create notification channels:\n   gcloud alpha monitoring channels create --display-name=\"Budget Alerts\" \\\n     --type=email --channel-labels=email_address=${join(",", var.notification_emails)}\n\n2. Update the budget with the notification channel ID:\n   # Get the channel ID from the previous command and update the budget configuration\n\n3. Alternatively, set up notifications in the Google Cloud Console:\n   - Go to Monitoring > Alerting > Notification Channels\n   - Create email notification channels\n   - Link them to the budget in Billing > Budgets & alerts" : ""
 }

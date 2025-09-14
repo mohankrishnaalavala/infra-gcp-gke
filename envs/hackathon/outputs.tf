@@ -57,7 +57,7 @@ output "budget_amount" {
 # Post-deployment instructions
 output "next_steps" {
   description = "Next steps after infrastructure deployment"
-  value = <<-EOT
+  value       = <<-EOT
     Infrastructure deployment complete! Next steps:
 
     1. Get cluster credentials:

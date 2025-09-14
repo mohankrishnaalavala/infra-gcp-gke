@@ -25,9 +25,5 @@ output "notification_setup_instructions" {
 
 output "billing_account_required" {
   description = "Message about billing account requirement"
-  value = var.billing_account_id == "" ? <<-EOT
-    No budget created because billing_account_id was not provided.
-    To create a budget, set the billing_account_id variable to your billing account ID.
-    You can find your billing account ID in the Google Cloud Console under Billing.
-  EOT : null
+  value       = var.billing_account_id == "" ? "No budget created because billing_account_id was not provided.\nTo create a budget, set the billing_account_id variable to your billing account ID.\nYou can find your billing account ID in the Google Cloud Console under Billing." : null
 }

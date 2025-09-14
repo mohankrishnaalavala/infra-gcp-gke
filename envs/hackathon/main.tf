@@ -66,10 +66,10 @@ module "artifact_registry" {
 module "github_wif" {
   source = "../../modules/iam-wif-github"
 
-  project_id         = var.project_id
-  github_owner       = var.github_owner
-  repos_needing_wif  = var.repos_needing_wif
-  default_branches   = var.default_branches
+  project_id        = var.project_id
+  github_owner      = var.github_owner
+  repos_needing_wif = var.repos_needing_wif
+  default_branches  = var.default_branches
 
   depends_on = [google_project_service.required_apis]
 }
@@ -87,10 +87,10 @@ module "secret_manager" {
 module "budgets" {
   source = "../../modules/budgets"
 
-  project_id           = var.project_id
-  billing_account_id   = var.billing_account_id
-  amount               = var.budget_amount
-  notification_emails  = var.budget_notification_emails
+  project_id          = var.project_id
+  billing_account_id  = var.billing_account_id
+  amount              = var.budget_amount
+  notification_emails = var.budget_notification_emails
 
   depends_on = [google_project_service.required_apis]
 }

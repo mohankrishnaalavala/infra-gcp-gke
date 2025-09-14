@@ -19,7 +19,7 @@ output "secret_manager_urls" {
 # Instructions for adding secret versions
 output "add_secret_instructions" {
   description = "Instructions for adding secret versions"
-  value = <<-EOT
+  value       = <<-EOT
     To add secret versions, use one of the following methods:
 
     1. Using gcloud CLI:
