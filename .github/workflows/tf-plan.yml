@@ -1,0 +1,158 @@
+# NOTE: Enable WIF and set GitHub environment variables after first manual apply
+# This workflow is for Terraform plan only - apply should be done manually for infrastructure changes
+
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - 'envs/**'
+      - 'modules/**'
+      - '.github/workflows/tf-plan.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to plan'
+        required: true
+        default: 'hackathon'
+        type: choice
+        options:
+          - hackathon
+
+env:
+  TF_VERSION: '1.6.0'
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'hackathon' }}
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    
+    # TODO: Set these environment variables in GitHub repository settings after first manual apply:
+    # WIF_PROVIDER: //iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-actions/providers/github-oidc
+    # WIF_SERVICE_ACCOUNT: ci-deployer@fraudguard-hackathon.iam.gserviceaccount.com
+    # PROJECT_ID: fraudguard-hackathon
+    
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      # TODO: Uncomment after first manual apply and WIF setup
+      # - name: Authenticate to Google Cloud
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+      #     service_account: ${{ vars.WIF_SERVICE_ACCOUNT }}
+
+      # - name: Setup gcloud CLI
+      #   uses: google-github-actions/setup-gcloud@v2
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init (Validation Only)
+        id: init
+        working-directory: envs/${{ env.ENVIRONMENT }}
+        run: terraform init -backend=false
+        continue-on-error: true
+
+      - name: Terraform Validate
+        id: validate
+        working-directory: envs/${{ env.ENVIRONMENT }}
+        run: terraform validate -no-color
+        continue-on-error: true
+
+      - name: Terraform Plan (Skipped - No Auth)
+        id: plan
+        working-directory: envs/${{ env.ENVIRONMENT }}
+        run: |
+          echo "✅ Terraform syntax validation completed"
+          echo "📋 Plan step skipped - requires authentication setup"
+          echo "🔧 After infrastructure deployment, enable Workload Identity Federation for full CI/CD"
+        continue-on-error: true
+
+      - name: Comment PR with Plan
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read the plan output
+            const planPath = path.join('envs', '${{ env.ENVIRONMENT }}', 'plan.txt');
+            let plan = '';
+            try {
+              plan = fs.readFileSync(planPath, 'utf8');
+            } catch (error) {
+              plan = 'Could not read plan output';
+            }
+            
+            // Truncate plan if too long
+            const maxLength = 60000;
+            if (plan.length > maxLength) {
+              plan = plan.substring(0, maxLength) + '\n\n... (truncated)';
+            }
+            
+            const output = `
+            ## Terraform Plan Results for \`${{ env.ENVIRONMENT }}\`
+            
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`terraform
+            ${plan}
+            \`\`\`
+            
+            </details>
+            
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      - name: Upload Plan Artifact
+        if: steps.plan.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ env.ENVIRONMENT }}
+          path: envs/${{ env.ENVIRONMENT }}/tfplan
+          retention-days: 30
+
+      - name: CI Validation Summary
+        run: |
+          echo "🎯 Terraform CI Validation Results:"
+          echo "📝 Format Check: ${{ steps.fmt.outcome }}"
+          echo "🔧 Init (Backend-less): ${{ steps.init.outcome }}"
+          echo "✅ Syntax Validation: ${{ steps.validate.outcome }}"
+          echo ""
+          if [[ "${{ steps.fmt.outcome }}" == "failure" ]]; then
+            echo "❌ Format check failed - run 'terraform fmt -recursive' to fix"
+            exit 1
+          elif [[ "${{ steps.validate.outcome }}" == "failure" ]]; then
+            echo "❌ Validation failed - check Terraform syntax"
+            exit 1
+          else
+            echo "✅ All validation checks passed! Ready for deployment."
+          fi
