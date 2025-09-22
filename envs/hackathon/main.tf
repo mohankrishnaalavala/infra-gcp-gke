@@ -8,17 +8,39 @@ terraform {
     }
   }
 
-  # Uncomment and configure for remote state storage
-  # backend "gcs" {
-  #   bucket = "your-terraform-state-bucket"
-  #   prefix = "fraudguard/hackathon"
-  # }
+  # Remote state storage in GCS
+  backend "gcs" {
+    bucket = "fraudguard-hackathon-terraform-state"
+    prefix = "fraudguard/hackathon"
+  }
 }
 
 # Configure the Google Cloud Provider
 provider "google" {
   project = var.project_id
   region  = var.region
+}
+
+# Terraform state bucket
+resource "google_storage_bucket" "terraform_state" {
+  name          = "fraudguard-hackathon-terraform-state"
+  location      = var.region
+  force_destroy = false
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    condition {
+      num_newer_versions = 5
+    }
+    action {
+      type = "Delete"
+    }
+  }
+
+  public_access_prevention = "enforced"
 }
 
 # Enable required APIs
@@ -72,6 +94,11 @@ module "github_wif" {
   default_branches  = var.default_branches
 
   depends_on = [google_project_service.required_apis]
+}
+
+# Static IP for ingress
+resource "google_compute_global_address" "fraudguard_ip" {
+  name = "fraudguard-ip"
 }
 
 # Create Secret Manager secrets
