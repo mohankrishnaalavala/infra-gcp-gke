@@ -2,6 +2,9 @@
 
 This repository contains Terraform infrastructure-as-code for the FraudGuard fraud detection system. It provisions a GKE Autopilot cluster, Artifact Registry, Workload Identity Federation for GitHub Actions, Secret Manager, and optional budget alerts.
 
+# Source Code
+This infrastructure is used to deploy the FraudGuard application, which is located in the [fraudguard-boa](https://github.com/mohankrishnaalavala/fraudguard-boa) repository.
+
 ## Architecture
 
 ```
